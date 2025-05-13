@@ -9,4 +9,4 @@ RUN pip3 install websockets
 COPY . .
 
 EXPOSE 8765
-CMD ["python3", "-u", "server.py", "cpu"]
+CMD ["python3", "-u", "server.py", "cuda:0"]
