@@ -1,0 +1,46 @@
+version: '3'
+services:
+  back:
+    image: anton_back
+    build:
+      context: ./omnifusion-gptq 
+    container_name: Omni-Back
+    environment:
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+    tty: true
+    stdin_open: true 
+    volumes:
+      - ./omnifusion-gptq/clip-vit-large:/usr/src/omnifusion-gptq/clip-vit-large/
+      - ./omnifusion-gptq/omnifusion-gptq-8bit:/usr/src/omnifusion-gptq/omnifusion-gptq-8bit/
+      - ./omnifusion-gptq/server.py:/usr/src/omnifusion-gptq/server.py
+    ports:
+      - "8765:8765"
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    networks:
+      - appnet
+
+  front:
+    image: anton_front
+    build:
+      context: ./app
+    container_name: Omni-Front
+    ports:
+      - "3000:3000"
+    depends_on:
+      - back
+    networks:
+      - appnet
+    env_file:
+      - .env        
+volumes:
+  tuned-model: null
+
+networks:
+  appnet:
+    driver: bridge
